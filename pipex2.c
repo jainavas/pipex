@@ -6,7 +6,7 @@
 /*   By: jainavas <jainavas@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 20:20:50 by jainavas          #+#    #+#             */
-/*   Updated: 2024/10/16 20:47:16 by jainavas         ###   ########.fr       */
+/*   Updated: 2024/10/17 16:25:35 by jainavas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,15 +29,13 @@ char	*pathseek(char **args, t_pipex *var)
 	char *const	argv[] = {"which", args[0], NULL};
 
 	if (pipe(fd) == -1)
-	{
-		perror("pipe failed");
 		return (NULL);
-	}
 	pid = fork();
 	if (pid == 0)
 	{
 		closeanddupoutput(fd);
-		execve("/usr/bin/which", argv, var->envp);
+		if (execve("/usr/bin/which", argv, var->envp) == -1)
+			return (NULL);
 	}
 	else
 	{
@@ -49,16 +47,14 @@ char	*pathseek(char **args, t_pipex *var)
 	return (NULL);
 }
 
-int	checks(char **argv, int argc, t_pipex *var)
+int	checks(char **argv, t_pipex *var)
 {
-	if (argc != 5)
-		return (ft_putstr_fd("Num args mal\n", 1), -1);
 	if (access(argv[1], R_OK) != 0)
-		return (ft_putstr_fd("Primer arg inaccesible\n", 1), -1);
-	if (access(var->path, X_OK) != 0)
-		return (ft_putstr_fd("Segundo arg inejecutable\n", 1), -1);
-	if (access(var->path2, X_OK) != 0)
-		return (ft_putstr_fd("Tercer arg inejecutable\n", 1), -1);
+		return (-1);
+	if (!var->path || access(var->path, X_OK) != 0)
+		return (-1);
+	if (!var->path || access(var->path2, X_OK) != 0)
+		return (-1);
 	return (0);
 }
 

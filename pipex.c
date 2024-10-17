@@ -6,7 +6,7 @@
 /*   By: jainavas <jainavas@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 16:54:34 by jainavas          #+#    #+#             */
-/*   Updated: 2024/10/16 20:49:19 by jainavas         ###   ########.fr       */
+/*   Updated: 2024/10/17 16:45:12 by jainavas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	closeanddupinput(int fd[2])
 int	cmdcall2(t_pipex *var, char **cmd)
 {
 	if (!cmd)
-		return (freepipex(var), -1);
+		return (-1);
 	if (pipe(var->fd2) == -1)
 		return (-1);
 	var->pid = fork();
@@ -30,7 +30,8 @@ int	cmdcall2(t_pipex *var, char **cmd)
 	{
 		closeanddupinput(var->fd);
 		closeanddupoutput(var->fd2);
-		execve(var->path2, cmd, var->envp);
+		if (execve(var->path2, cmd, var->envp) == -1)
+			return (-1);
 	}
 	else
 	{
@@ -55,7 +56,8 @@ int	cmdcall(t_pipex *var, char **cmd)
 		close(var->fdin);
 		dup2(var->fd[WRITE_FD], STDOUT_FILENO);
 		closeanddupinput(var->fd);
-		execve(var->path, var->cmd, var->envp);
+		if (execve(var->path, var->cmd, var->envp) == -1)
+			return (-1);
 	}
 	else
 	{
@@ -64,21 +66,23 @@ int	cmdcall(t_pipex *var, char **cmd)
 	return (0);
 }
 
-void	vardefs(t_pipex *vars, char **argv)
+int	vardefs(t_pipex *vars, char **argv)
 {
 	vars->cmd = ft_split(argv[2], ' ');
 	vars->cmd2 = ft_split(argv[3], ' ');
 	vars->output = argv[4];
 	vars->path = pathseek(vars->cmd, vars);
 	if (!vars->path)
-		return (freepipex(vars), exit(-1));
+		return (ft_printf("zsh: command not found: %s\n", vars->cmd[0]), -1);
 	vars->path[ft_strlen(vars->path) - 1] = '\0';
 	vars->fdin = open(argv[1], O_RDONLY);
+	if (vars->fdin == -1)
+		return (ft_printf("zsh: no such file or directory: %s\n", argv[1]), -1);
 	vars->path2 = pathseek(vars->cmd2, vars);
 	if (!vars->path2)
-		return (freepipex(vars), exit(-1));
+		return (ft_printf("zsh: command not found: %s\n", vars->cmd2[0]), -1);
 	vars->path2[ft_strlen(vars->path2) - 1] = '\0';
-	vars->fdin = open(argv[1], O_RDONLY);
+	return (0);
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -87,11 +91,14 @@ int	main(int argc, char **argv, char **envp)
 
 	vars = ft_calloc(1, sizeof(t_pipex));
 	vars->envp = envp;
-	vardefs(vars, argv);
-	if (checks(argv, argc, vars) != 0)
-		return (freepipex(vars), -1);
+	if (argc != 5)
+		return (free(vars), 0);
+	if (vardefs(vars, argv) != 0)
+		return (freepipex(vars), 127);
+	if (checks(argv, vars) != 0)
+		return (freepipex(vars), 127);
 	if (cmdcall(vars, vars->cmd) != 0)
-		return (freepipex(vars), -1);
+		return (freepipex(vars), 127);
 	freepipex(vars);
 	return (0);
 }
