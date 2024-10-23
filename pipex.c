@@ -6,7 +6,7 @@
 /*   By: jainavas <jainavas@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 16:54:34 by jainavas          #+#    #+#             */
-/*   Updated: 2024/10/17 16:45:12 by jainavas         ###   ########.fr       */
+/*   Updated: 2024/10/23 20:34:01 by jainavas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ int	cmdcall2(t_pipex *var, char **cmd)
 	else
 	{
 		close(var->fd[WRITE_FD]);
+		close(var->fd[READ_FD]);
 		close(var->fd2[WRITE_FD]);
 		close(var->fdout);
 		return (fdtofile(var, var->output), 0);
@@ -61,6 +62,7 @@ int	cmdcall(t_pipex *var, char **cmd)
 	}
 	else
 	{
+		close(var->fdin);
 		return (cmdcall2(var, var->cmd2));
 	}
 	return (0);
@@ -92,13 +94,15 @@ int	main(int argc, char **argv, char **envp)
 	vars = ft_calloc(1, sizeof(t_pipex));
 	vars->envp = envp;
 	if (argc != 5)
-		return (free(vars), 0);
+		return (free(vars), 2);
 	if (vardefs(vars, argv) != 0)
-		return (freepipex(vars), 127);
+		return (freepipex(vars), 2);
 	if (checks(argv, vars) != 0)
-		return (freepipex(vars), 127);
+		return (freepipex(vars), 2);
 	if (cmdcall(vars, vars->cmd) != 0)
-		return (freepipex(vars), 127);
+		return (freepipex(vars), 2);
+	wait(NULL);
+	wait(NULL);
 	freepipex(vars);
 	return (0);
 }

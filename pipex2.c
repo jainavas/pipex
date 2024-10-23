@@ -6,7 +6,7 @@
 /*   By: jainavas <jainavas@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 20:20:50 by jainavas          #+#    #+#             */
-/*   Updated: 2024/10/17 16:25:35 by jainavas         ###   ########.fr       */
+/*   Updated: 2024/10/23 20:31:35 by jainavas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ void	fdtofile(t_pipex *var, char *filename)
 		var->buf = get_next_line(var->fd2[READ_FD]);
 	}
 	close(var->fdout);
+	close(var->fd2[READ_FD]);
 }
 
 void	closeanddupoutput(int fd[2])
