@@ -6,7 +6,7 @@
 /*   By: jainavas <jainavas@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 16:54:34 by jainavas          #+#    #+#             */
-/*   Updated: 2024/10/23 20:34:01 by jainavas         ###   ########.fr       */
+/*   Updated: 2024/10/27 17:43:01 by jainavas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,8 @@ int	main(int argc, char **argv, char **envp)
 		return (freepipex(vars), 2);
 	wait(NULL);
 	wait(NULL);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
 	freepipex(vars);
 	return (0);
 }
