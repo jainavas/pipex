@@ -64,4 +64,3 @@ $> <infile grep a1 | wc -w >outfile
 ---
 
 ¡Bienvenido al mundo de pipex! Demuestra tu destreza en el manejo de pipes y redirección, y lleva tu programación al siguiente nivel.
-```
